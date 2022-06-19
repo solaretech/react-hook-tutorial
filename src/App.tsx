@@ -31,13 +31,19 @@ const dummyBooks: BookToRead[] = [
 
 const App = () => {
   const [books, setBooks] = useState(dummyBooks)
+
+  const handleBookDelete = (id: number) => {
+    const newBooks = books.filter((b) => b.id != id)
+    setBooks(newBooks)
+  }
+
   const bookRows = books.map((b) => {
     return (
       <BookRow 
         book={b}
         key={b.id}
         onMemoChange={(id, memo) => {}}
-        onDelete={(id) => {}}
+        onDelete={(id) => handleBookDelete(id)}
       />
     )
   })
