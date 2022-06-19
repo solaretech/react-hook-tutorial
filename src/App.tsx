@@ -1,5 +1,10 @@
-import React from "react";
+// 機能に必要なインポート
+import React, {useState} from "react";
+
+// 全体共通レイアウト
 import "./App.css";
+
+// コンポーネント
 import { BookToRead } from "./BookToRead";
 import BookRow from "./BookRow";
 
@@ -25,7 +30,8 @@ const dummyBooks: BookToRead[] = [
 ];
 
 const App = () => {
-  const bookRows = dummyBooks.map((b) => {
+  const [books, setBooks] = useState(dummyBooks)
+  const bookRows = books.map((b) => {
     return (
       <BookRow 
         book={b}
