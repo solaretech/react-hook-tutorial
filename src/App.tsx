@@ -42,7 +42,7 @@ const App = () => {
   }
 
   const handleBookDelete = (id: number) => {
-    const newBooks = books.filter((b) => b.id != id)
+    const newBooks = books.filter((b) => b.id !== id)
     setBooks(newBooks)
   }
 
