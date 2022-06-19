@@ -1,7 +1,34 @@
-import React, {useState} from "react";
+import React, {useState ,useEffect} from "react";
 import { isPropertySignature } from "typescript";
 import { BookDescription } from "./BookDescription";
 import BookSearchItem from "./BookSearchItem";
+
+
+// API呼び出しで使用
+// ※ 本来は別コンポーネントにすべき
+const buildSearchUrl = (title: string, author: string, maxResults: number):string => {
+    let url = "https://www.googleapis.com/books/v1/volumes?q="
+    const conditions: string[] = []
+    if(title){
+        conditions.push(`intitle:${title}`)
+    }
+    if(author){
+        conditions.push(`inauthor:${author}`)
+    }
+    return url + conditions.join('+') + `&maxResults=${maxResults}`
+}
+
+const extraBooks = (json: any): BookDescription[] => {
+    const items: any[] = json.items
+    return items.map((item:any) => {
+        const volumeInfo: any = item.volumeInfo
+        return {
+            title: volumeInfo.title,
+            authors: volumeInfo.authors ? volumeInfo.authors.join(', ') : "",
+            thumbnail: volumeInfo.imageLinks ? volumeInfo.imageLinks.smallThumbnail : "",
+        }
+    })
+}
 
 type BookSearchDialogProps = {
     maxResults: number
@@ -9,10 +36,32 @@ type BookSearchDialogProps = {
 }
 
 const BookSearchDialog = (props: BookSearchDialogProps) => {
+    // stateの定義
     const [books, setBooks] = useState([] as BookDescription[])
     const [title, setTitle] = useState("")
     const [author, setAuthor] = useState("")
+    const [isSearching, setIsSearching] = useState(false);
 
+    useEffect(() => {
+        if (isSearching){
+            const url = buildSearchUrl(title, author, props.maxResults)
+            fetch(url)
+                .then((res) => {
+                    return res.json()
+                })
+                .then((json) => {
+                    return extraBooks(json)
+                })
+                .then((books)=>{
+                    setBooks(books)
+                })
+                .catch((err) => {
+                    console.error(err)
+                })
+        }
+    })
+
+    // イベントハンドラの定義
     const handleTitleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(e.target.value);
     };
@@ -26,12 +75,14 @@ const BookSearchDialog = (props: BookSearchDialogProps) => {
             alert("条件を入力してください")
             return
         }
+        setIsSearching(true)
     }
 
     const handleBookAdd = (book: BookDescription) => {
         props.onBookAdd(book)
     }
 
+    // レンダリング内容の定義
     const bookItems = books.map((b, idx) => {
         return (
             <BookSearchItem
