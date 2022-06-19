@@ -9,6 +9,7 @@ import "./App.css";
 import { BookToRead } from "./BookToRead";
 import BookRow from "./BookRow";
 import BookSearchDialog from "./BookSearchDialog";
+import {BookDescription} from "./BookDescription";
 
 // モーダル表示準備
 Modal.setAppElement("#root");
@@ -51,7 +52,7 @@ const dummyBooks: BookToRead[] = [
 ];
 
 const App = () => {
-  const [books, setBooks] = useState(dummyBooks)
+  const [books, setBooks] = useState([] as BookToRead[])
   const [modalIsOpen, setModalIsOpen] = useState(false)
 
   const handleBookMemoChange = (id: number, memo: string) => {
@@ -74,6 +75,13 @@ const App = () => {
 
   const handleModalClose = () => {
     setModalIsOpen(false);
+  }
+
+  const handleBookAdd = (book: BookDescription) => {
+    const newBook: BookToRead = {...book, id: Date.now(), memo:""}
+    const newBooks = [...books, newBook]
+    setBooks(newBooks)
+    setModalIsOpen(false)
   }
 
   const bookRows = books.map((b) => {
@@ -101,7 +109,7 @@ const App = () => {
         onRequestClose={handleModalClose}
         style={customStyles}
       >
-        <BookSearchDialog maxResults={20} onBookAdd={(b) => {}} />
+        <BookSearchDialog maxResults={20} onBookAdd={(b) => {handleBookAdd(b)}} />
       </Modal>
     </div>
   );
